@@ -1,4 +1,6 @@
-# rlsrb
+![image](http://imgur.com/ebyJ0pD.jpg)
+
+# **rlsrb**
 
 REST API wrapper for [RocketLeagueStats](https://rocketleaguestats.com/)
 
