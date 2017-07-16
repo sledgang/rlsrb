@@ -2,7 +2,7 @@
 
 # **rlsrb**
 
-REST API wrapper for [RocketLeagueStats](https://rocketleaguestats.com/)
+Ruby REST API wrapper for [RocketLeagueStats](https://rocketleaguestats.com/)
 
 - [API Documentation](http://documentation.rocketleaguestats.com/)
 - [Request an API key](https://developers.rocketleaguestats.com/)
