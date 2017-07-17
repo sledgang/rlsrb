@@ -5,5 +5,9 @@ module RLS
   # and provides other helpful higher-level functionality.
   class Client
     include API
+
+    def initialize(api_key)
+      @api_key = api_key
+    end
   end
 end
