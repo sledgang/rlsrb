@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RLS
   class Stats
     attr_reader :wins

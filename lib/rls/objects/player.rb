@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rls/objects/stats'
 
 module RLS

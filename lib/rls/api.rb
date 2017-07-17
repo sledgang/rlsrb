@@ -23,9 +23,9 @@ module RLS
         request(
           :get,
           :player,
-          { params: {
+          params: {
             unique_id: id,
-            platform_id: platform }
+            platform_id: platform
           }
         )
       Player.new(response)
@@ -42,7 +42,7 @@ module RLS
             :get,
             'data/platforms'
           )
-        @platforms = 
+        @platforms =
           response.map { |e| Platform.new(e) }
       else
         @platforms
@@ -61,9 +61,10 @@ module RLS
     end
 
     private
+
     # @param type [String, Symbol] HTTP verb
     # @param endpoint [String, Symbol] The API endpoint
-    # @param attributes [Array<Hash>] Header and query parameters 
+    # @param attributes [Array<Hash>] Header and query parameters
     #   passed along with the request
     # @return [RestClient::Response] The response from RestClient
     def raw_request(type, endpoint, attributes)

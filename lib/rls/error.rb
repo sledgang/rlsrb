@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RLS
   module Error
     class MissingKey < RuntimeError
