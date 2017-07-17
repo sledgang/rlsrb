@@ -8,5 +8,7 @@
 /spec/reports/
 /tmp/
 /vendor
-/bin/httparty
+/bin/restclient
 /bin/rake
+/bin/pry
+/bin/coderay
