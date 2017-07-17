@@ -16,6 +16,7 @@ module RLS
     #   Steam 64 ID / PSN Username / Xbox GamerTag or XUID
     # @param platform [Platform] The platform to use
     # @return [Player] The player object
+    # @raise [ArgumentError] when platform does not resolve to an integer
     def player(id, platform = Platform::Steam)
       platform = platform.respond_to?(:id) ? platform.id : platform
       raise ArgumentError, 'Argument platform must resolve to an Integer' unless platform.is_a?(Integer)
@@ -67,6 +68,8 @@ module RLS
     # @param attributes [Array<Hash>] Header and query parameters
     #   passed along with the request
     # @return [RestClient::Response] The response from RestClient
+    # @raise [RLS::Error::MissingKey] if @api_key is `nil`
+    # @raise [RLS::Error::InvalidKey] if the API rejects `@api_key`
     def raw_request(type, endpoint, attributes)
       raise RLS::Error::MissingKey unless @api_key
       attributes.last[:authorization] = @api_key
