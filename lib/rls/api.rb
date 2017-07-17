@@ -14,7 +14,7 @@ module RLS
     # Retrieve a single player
     # @param id [String, Integer] The unique identifier:
     #   Steam 64 ID / PSN Username / Xbox GamerTag or XUID
-    # @param platform [Platform] The platform to use
+    # @param platform [Platform, Integer] The platform to use
     # @return [Player] The player object
     def player(id, platform = Platform::Steam)
       platform = platform.respond_to?(:id) ? platform.id : platform
@@ -31,8 +31,7 @@ module RLS
       Player.new(response)
     end
 
-    # Retrieve the different platforms
-    # Unless they've already been cached
+    # Retrieve the different platforms unless they've already been cached
     # @param renew [true, false] Ignore the cache and make a new request
     # @return [Array<Platform>] An array of platform objects
     def platforms(renew = false)
