@@ -7,7 +7,7 @@ module RLS
   class Platform
     # @return [Integer] ID of this platform
     attr_reader :id
-    
+
     # @return [String] name of this platform
     attr_reader :name
 
