@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'rlsrb/version'
+require 'rls/version'
 
 # RLS
 module RLS
