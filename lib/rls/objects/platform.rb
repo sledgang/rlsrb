@@ -1,8 +1,15 @@
 # frozen_string_literal: true
 
 module RLS
+  # A gaming platform that is tracked by RLS.
+  # These change very rarely, and constants to the most common platforms
+  # are provided so that users do not have to make an API request.
   class Platform
-    attr_reader :id, :name
+    # @return [Integer] ID of this platform
+    attr_reader :id
+    
+    # @return [String] name of this platform
+    attr_reader :name
 
     def initialize(data)
       @id = data['id']
