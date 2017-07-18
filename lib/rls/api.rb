@@ -33,6 +33,36 @@ module RLS
       Player.new(response)
     end
 
+    # Retrieve a batch of players
+    # @example Retrieve a batch of players from multiple platforms
+    #   client.players(
+    #     76561198033338223, 1,
+    #     76561197981122126, RLS::Platform::Steam,
+    #     'Wizwonk', 2,
+    #     'Loubleezy', RLS::Platform::XboxOne
+    #   )
+    # @param *request_data [Array<String,Integer,#id>] list of player IDs and their platform
+    # @return [Array<Player>] Array of Player objects
+    def players(*request_data)
+      raise ArgumentError, 'Provided uneven pairing of ID and platform' unless request_data.size.even?
+      post_data = []
+      request_data.each_slice(2) do |id, platform|
+        id = id.to_s
+	platform = platform.respond_to?(:id) ? platform.id : platform
+        post_data << { uniqueId: id, platformId: platform }
+      end
+      raise ArgumentError, 'Can\'t request more than 10 players' if post_data.size > 10
+      response =
+        request(
+          :post,
+          'player/batch',
+          post_data.to_json,
+          content_type: :json
+        )
+      response.map { |e| Player.new(e) }
+    end
+
+
     # Retrieve the different platforms unless they've already been cached
     # @param renew [true, false] Ignore the cache and make a new request
     # @return [Array<Platform>] An array of platform objects
