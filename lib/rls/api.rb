@@ -59,6 +59,25 @@ module RLS
       response.map { |e| Player.new(e) }
     end
 
+    # Searches RLS's database for players matching a given display name.
+    # The response is paginated.
+    #
+    # @param display_name [String]
+    # @param page [Integer]
+    # @return [Array<Player>]
+    def search(display_name, page = 0)
+      response =
+        request(
+          :get,
+          'search/players',
+          params: {
+            display_name: display_name,
+            page: page
+          }
+        )
+      response['data'].map { |e| Player.new(e) }
+    end
+
     # Retrieve the different platforms unless they've already been cached
     # @param renew [true, false] Ignore the cache and make a new request
     # @return [Array<Platform>] An array of platform objects
