@@ -21,7 +21,7 @@ module RLS
 
     # @return [true, false] Is this the current season?
     def current?
-      @ended_on.nil?
+      started_on && ended_on.nil?
     end
   end
 end

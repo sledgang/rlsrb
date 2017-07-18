@@ -13,5 +13,17 @@ module RLS
     def initialize(api_key)
       @api_key = api_key
     end
+
+    # Returns a single season by ID
+    # @param id [Integer]
+    # @return [Season]
+    def season(id)
+      seasons[id]
+    end
+
+    # @return [Season] the current season
+    def current_season
+      seasons.values.find(&:current?)
+    end
   end
 end
