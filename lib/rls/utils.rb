@@ -14,5 +14,19 @@ module RLS
     def time(ts)
       Time.at(ts)
     end
+
+    # Build an array of hashes for use with the batch endpoint
+    #
+    # @param request_data [Array] list of player IDs and their platform
+    # @return Array<Hash>
+    def batch_players_from_array(request_data)
+      post_data = []
+      request_data.each_slice(2) do |id, platform|
+        id = id.to_s
+        platform = platform.respond_to?(:id) ? platform.id : platform
+        post_data << { uniqueId: id, platformId: platform }
+      end
+      post_data
+    end
   end
 end
