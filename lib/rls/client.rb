@@ -25,5 +25,14 @@ module RLS
     def current_season
       seasons.values.find(&:current?)
     end
+
+    # Find a platform by ID or name
+    # @param id [Integer, Symbol] the ID or name (in lowercase) of the platform
+    # @raise [ArgumentError] if id is not an `Integer` or `Symbol`
+    def platform(id)
+      return platforms.find { |p| p.id == id } if id.is_a? Integer
+      return platforms.find { |p| p.name.downcase.to_sym == id } if id.is_a? Symbol
+      raise ArgumentError, 'id must be one of type Integer or Symbol'
+    end
   end
 end
