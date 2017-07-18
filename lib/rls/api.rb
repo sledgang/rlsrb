@@ -4,6 +4,7 @@ require 'rest-client'
 require 'json'
 require 'rls/objects/platform'
 require 'rls/objects/player'
+require 'rls/objects/season'
 
 module RLS
   # Mixin binding to RocketLeagueStats' REST API
@@ -46,6 +47,23 @@ module RLS
           response.map { |e| Platform.new(e) }
       else
         @platforms
+      end
+    end
+
+    # Retrieve season information
+    # @param renew [true, false] Ignore the cache and make a new request
+    # @return [Hash<Integer => Season] The seasons by ID
+    def seasons(renew = false)
+      if renew || !@seasons
+        response =
+          request(
+            :get,
+            'data/seasons'
+          )
+        @seasons =
+          response.map { |data| [data['seasonId'], Season.new(data)] }.to_h
+      else
+        @seasons
       end
     end
 
