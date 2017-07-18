@@ -19,6 +19,7 @@ module RLS
       @ended_on   = ended_on.nil? ? nil : RLS::Utils.time(ended_on)
     end
 
+    # @return [true, false] Is this the current season?
     def current?
       @ended_on.nil?
     end
