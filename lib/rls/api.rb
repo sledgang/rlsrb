@@ -5,6 +5,7 @@ require 'json'
 require 'rls/objects/platform'
 require 'rls/objects/player'
 require 'rls/objects/season'
+require 'rls/objects/search_results'
 
 module RLS
   # Mixin binding to RocketLeagueStats' REST API
@@ -61,10 +62,19 @@ module RLS
 
     # Searches RLS's database for players matching a given display name.
     # The response is paginated.
+    # @example Retrieve the results, one page at a time
+    #   results = client.search('player')
+    #   results.players #=> first page
+    #   results.next_page #=> next page of players
+    #   results.next_page #=> next page of players
+    #   results.players #=> all players read so far
+    # @example Retrieve all results, if there is more than one page
+    #   results = client.search('player')
+    #   results.all #=> all players from all paginated responses
     #
     # @param display_name [String]
     # @param page [Integer]
-    # @return [Array<Player>]
+    # @return [SearchResults]
     def search(display_name, page = 0)
       response =
         request(
@@ -75,7 +85,7 @@ module RLS
             page: page
           }
         )
-      response['data'].map { |e| Player.new(e) }
+      SearchResults.new(self, response, display_name)
     end
 
     # Retrieve the different platforms unless they've already been cached
