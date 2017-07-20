@@ -3,9 +3,11 @@
 require 'rest-client'
 require 'json'
 require 'rls/objects/platform'
-require 'rls/objects/player'
 require 'rls/objects/season'
 require 'rls/objects/search_results'
+require 'rls/objects/tier'
+require 'rls/objects/playlist'
+require 'rls/objects/player'
 
 module RLS
   # Mixin binding to RocketLeagueStats' REST API
@@ -13,7 +15,8 @@ module RLS
     # The base URL of the RocketLeagueStats API
     APIBASE = 'https://api.rocketleaguestats.com/v1/'
 
-    # Retrieve a single player
+    # Retrieve a single player.
+    # [API docs for this method](http://documentation.rocketleaguestats.com/#single-player)
     # @param id [String, Integer] The unique identifier:
     #   Steam 64 ID / PSN Username / Xbox GamerTag or XUID
     # @param platform [Platform, Integer] The platform to use
@@ -34,7 +37,8 @@ module RLS
       Player.new(response)
     end
 
-    # Retrieves a batch of up to 10 players at a time from different platforms
+    # Retrieves a batch of up to 10 players at a time from different platforms.
+    # [API docs for this method](http://documentation.rocketleaguestats.com/#batch-players)
     # @example Retrieve a batch of players from different platforms
     #   client.players(
     #     76561198033338223, 1,
@@ -62,6 +66,7 @@ module RLS
 
     # Searches RLS's database for players matching a given display name.
     # The response is paginated.
+    # [API docs for this method](http://documentation.rocketleaguestats.com/#search-players)
     # @example Retrieve the results, one page at a time
     #   results = client.search('player')
     #   results.players #=> first page
@@ -88,7 +93,8 @@ module RLS
       SearchResults.new(self, response, display_name)
     end
 
-    # Retrieve the different platforms unless they've already been cached
+    # Retrieve the different platforms unless they've already been cached.
+    # [API docs for this method](http://documentation.rocketleaguestats.com/#platforms)
     # @param renew [true, false] Ignore the cache and make a new request
     # @return [Array<Platform>] An array of platform objects
     def platforms(renew = false)
@@ -105,7 +111,8 @@ module RLS
       end
     end
 
-    # Retrieve season information
+    # Retrieve season information.
+    # [API docs for this method](http://documentation.rocketleaguestats.com/#seasons)
     # @param renew [true, false] Ignore the cache and make a new request
     # @return [Hash<Integer => Season] The seasons by ID
     def seasons(renew = false)
@@ -120,6 +127,80 @@ module RLS
       else
         @seasons
       end
+    end
+
+    # Retrieve the current season's tiers.
+    # [API docs for this method](http://documentation.rocketleaguestats.com/#tiers)
+    # @param renew [true, false] Ignore the cache and make a new request
+    # @return [Hash<Integer => Tier] The tiers by ID
+    def tiers(renew = false)
+      if renew || !@tiers
+        response =
+          request(
+            :get,
+            'data/tiers'
+          )
+        @tiers =
+          response.map { |data| [data['tierId'], Tier.new(data)] }.to_h
+      else
+        @tiers
+      end
+    end
+
+    # Retrieve the current playlists.
+    # [API docs for this method](http://documentation.rocketleaguestats.com/#playlists)
+    # @param renew [true, false] Ignore the cache and make a new request
+    # @return [Hash<Integer => Playlist] The playlist by ID
+    def playlists(renew = false)
+      if renew || !@playlists
+        response =
+          request(
+            :get,
+            'data/playlists'
+          )
+        @playlists =
+          response.map { |data| [data['id'], Playlist.new(data)] }.to_h
+      else
+        @playlists
+      end
+    end
+
+    # Returns the top 100 players for the current season on a particular playlist.
+    # [API docs for this method](http://documentation.rocketleaguestats.com/#ranked-leaderboard)
+    # @param playlist_id [Integer]
+    # @return [Array<Player>]
+    def ranked_leaderboard(playlist_id)
+      raise ArgumentError, 'Invalid playlist_id' unless playlists.keys.include?(playlist_id)
+      response =
+        request(
+          :get,
+          'leaderboard/ranked',
+          params: {
+            playlist_id: playlist_id
+          }
+        )
+      response.map { |e| Player.new(e) }
+    end
+
+    # Valid stat types for the leaderboard/stat endpoint
+    VALID_STAT_TYPE = %i[wins goals mvps saves shots assists].freeze
+
+    # Returns the top 100 players for the current season by a particular stat.
+    # [API docs for this method](http://documentation.rocketleaguestats.com/#stat-leaderboard)
+    # @param type [Symbol, String]
+    # @return [Array<Player>]
+    # @raise [ArgumentError] if an unsupported type is specified
+    def stat_leaderboard(type)
+      raise ArgumentError, "Stat type must be one of: #{VALID_STAT_TYPE}" unless VALID_STAT_TYPE.include?(type)
+      response =
+        request(
+          :get,
+          'leaderboard/stat',
+          params: {
+            type: type
+          }
+        )
+      response.map { |e| Player.new(e) }
     end
 
     # @param type [String, Symbol] HTTP verb
