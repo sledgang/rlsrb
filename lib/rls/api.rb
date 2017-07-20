@@ -7,6 +7,7 @@ require 'rls/objects/player'
 require 'rls/objects/season'
 require 'rls/objects/search_results'
 require 'rls/objects/tier'
+require 'rls/objects/playlist'
 
 module RLS
   # Mixin binding to RocketLeagueStats' REST API
@@ -137,6 +138,23 @@ module RLS
           response.map { |data| [data['tierId'], Tier.new(data)] }.to_h
       else
         @tiers
+      end
+    end
+
+    # Retrieve the current playlists
+    # @param renew [true, false] Ignore the cache and make a new request
+    # @return [Hash<Integer => Playlist] The playlist by ID
+    def playlists(renew = false)
+      if renew || !@playlists
+        response =
+          request(
+            :get,
+            'data/playlists'
+          )
+        @playlists =
+          response.map { |data| [data['id'], Playlist.new(data)] }.to_h
+      else
+        @playlists
       end
     end
 
