@@ -3,11 +3,11 @@
 require 'rest-client'
 require 'json'
 require 'rls/objects/platform'
-require 'rls/objects/player'
 require 'rls/objects/season'
 require 'rls/objects/search_results'
 require 'rls/objects/tier'
 require 'rls/objects/playlist'
+require 'rls/objects/player'
 
 module RLS
   # Mixin binding to RocketLeagueStats' REST API

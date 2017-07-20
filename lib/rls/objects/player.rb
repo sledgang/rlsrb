@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rls/objects/stats'
+require 'rls/objects/ranked_history'
 
 module RLS
   # A Rocket League player, as tracked by RLS
@@ -38,6 +39,9 @@ module RLS
     # @return [Time]
     attr_reader :next_update
 
+    # @return [Hash<Integer, RankedHistory>] ranked history by season
+    attr_reader :ranked_seasons
+
     def initialize(data)
       @id             = data['uniqueId']
       @display_name   = data['displayName']
@@ -51,6 +55,15 @@ module RLS
       @created_at     = RLS::Utils.time(data['createdAt'])
       @updated_at     = RLS::Utils.time(data['updatedAt'])
       @next_update    = RLS::Utils.time(data['nextUpdateAt'])
+
+      ranked_seaons_data = data['rankedSeasons']
+
+      @ranked_seasons = {}
+      ranked_seaons_data.each do |season_id, ranked_data|
+        @ranked_seasons[season_id.to_i] = ranked_data.map do |k, v|
+          RankedHistory.new(k.to_i, v)
+        end
+      end
     end
   end
 end
