@@ -1,3 +1,5 @@
+# frozen-string-literal: true
+
 module RLS
   # Search results from RLS
   class SearchResults
