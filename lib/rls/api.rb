@@ -158,6 +158,42 @@ module RLS
       end
     end
 
+    # Returns the top 100 players for the current season on a particular playlist
+    # @param playlist_id [Integer]
+    # @return [Array<Player>]
+    def ranked_leaderboard(playlist_id)
+      raise ArgumentError, 'Invalid playlist_id' unless playlists.keys.include?(playlist_id)
+      response =
+        request(
+          :get,
+          'leaderboard/ranked',
+          params: {
+            playlist_id: playlist_id
+          }
+        )
+      response.map { |e| Player.new(e) }
+    end
+
+    # Valid stat types for the leaderboard/stat endpoint
+    VALID_STAT_TYPE = %i[wins goals mvps saves shots assists].freeze
+
+    # Returns the top 100 players for the current season by a particular stat
+    # @param type [Symbol, String]
+    # @return [Array<Player>]
+    # @raise [ArgumentError] if an unsupported type is specified
+    def stat_leaderboard(type)
+      raise ArgumentError, "Stat type must be one of: #{VALID_STAT_TYPE}" unless VALID_STAT_TYPE.include?(type)
+      response =
+        request(
+          :get,
+          'leaderboard/stat',
+          params: {
+            type: type
+          }
+        )
+      response.map { |e| Player.new(e) }
+    end
+
     # @param type [String, Symbol] HTTP verb
     # @param endpoint [String, Symbol] The API endpoint
     # @param attributes [Array<Hash>] Header and query parameters
