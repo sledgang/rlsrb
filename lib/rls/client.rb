@@ -21,6 +21,13 @@ module RLS
       seasons[id]
     end
 
+    # Returns a single tier by ID
+    # @param id [Integer]
+    # @return [Tier]
+    def tier(id)
+      tiers[id]
+    end
+
     # @return [Season] the current season
     def current_season
       seasons.values.find(&:current?)
