@@ -2,6 +2,7 @@
 
 require 'rest-client'
 require 'json'
+require 'time'
 require 'rls/objects/platform'
 require 'rls/objects/player'
 require 'rls/objects/season'
@@ -122,6 +123,7 @@ module RLS
       end
     end
 
+    # Performs a mutex-protected request to the API with rate limit handling.
     # @param type [String, Symbol] HTTP verb
     # @param endpoint [String, Symbol] The API endpoint
     # @param attributes [Array<Hash>] Header and query parameters
@@ -129,12 +131,53 @@ module RLS
     # @return [Hash] The parsed JSON response
     def request(type, endpoint, *attributes)
       attributes << {} if attributes.empty?
-      response = raw_request(type, endpoint, attributes)
-      JSON.parse(response)
+      @mutex ||= Mutex.new
+
+      @mutex.synchronize do
+        sleep until_reset if will_be_rate_limited?
+
+        begin
+          @last_response = raw_request(type, endpoint, attributes)
+        rescue RestClient::TooManyRequests
+          sleep until_reset
+          retry
+        end
+
+        JSON.parse(@last_response)
+      end
     end
 
     private
 
+    # @return [String, nil] if it exists, the specific header from the last API request
+    def last_header(key)
+      @last_response&.headers&.dig(key)
+    end
+
+    # @return [Float] the amount of time until the rate limit resets
+    def until_reset
+      (last_header(:x_rate_limit_reset_remaining) || 0).to_i / 1000.0
+    end
+
+    # @return [Integer] number of requests until we're rate limited
+    def remaining_requests
+      last_header(:x_rate_limit_remaining)&.to_i || -1
+    end
+
+    # @return [Time, nil] if it exists, when the rate limit will be reset
+    def rate_limit_reset
+      str = last_header(:x_rate_limit_reset)
+      Time.parse(str) if str
+    end
+
+    # @return [true, false] if the next request will be rate limited
+    def will_be_rate_limited?
+      return false unless @last_response
+      return false if Time.now > rate_limit_reset
+      remaining_requests.zero?
+    end
+
+    # Performs a request to the API. Not protected by a rate-limit mutex!
     # @param type [String, Symbol] HTTP verb
     # @param endpoint [String, Symbol] The API endpoint
     # @param attributes [Array<Hash>] Header and query parameters
