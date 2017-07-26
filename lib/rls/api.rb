@@ -161,7 +161,7 @@ module RLS
 
     # @return [Integer] number of requests until we're rate limited
     def remaining_requests
-      (last_header(:x_rate_limit_remaining) || 0).to_i / 1000.0
+      last_header(:x_rate_limit_remaining)&.to_i || -1
     end
 
     # @return [Time, nil] if it exists, when the rate limit will be reset
